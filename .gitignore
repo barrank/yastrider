@@ -16,5 +16,10 @@ venv/
 # OS
 .DS_Store
 
+#Editor
+.vscode/
+
 # Other
 yastrider.zip
+.cache/
+
