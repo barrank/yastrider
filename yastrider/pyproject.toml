@@ -35,6 +35,11 @@ classifiers = [
 
 dependencies = []
 
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
 [project.urls]
 Homepage = "https://github.com/barrank/yastrider"
 Source = "https://github.com/barrank/yastrider"
