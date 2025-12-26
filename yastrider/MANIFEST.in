@@ -1,0 +1,20 @@
+# Python code
+recursive-include src *.py
+
+# Typing support:
+include src/yastrider/py.typed
+
+# Metadata:
+include pyproject.toml
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Exclude tests:
+prune tests
+
+# Exclude temporary and compiled files:
+global-exclude *.py[cod] __pycache__ *.so *.dylib
+
+# Exclude hidden files:
+global-exclude .*

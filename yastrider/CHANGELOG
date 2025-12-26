@@ -1,0 +1,41 @@
+# Changelog
+
+All relevant changes to this project will be documented here.
+
+This project follows a conservative interpretation of
+[Semantic Versioning](https://semver.org/), with a focus on API stability
+and explicit behavior.
+
+---
+
+## **0.1.0** (2025-12-20)
+
+### Added
+- **yastrider**: Initial public release.
+  - Unicode-aware text normalization utilities.
+  - Diacritic stripping via Unicode normalization forms (`NFC`, `NFD`, `NFKC`, `NFKD`).
+  - Token-based preservation mechanism to protect selected characters or substrings during normalization.
+  - Character removal utilities based on Unicode categories.
+  - ASCII-safe string conversion, with:
+    - Optional percent-encoding helper for non-ASCII character encoding.
+  - Centralized regex compilation helper with caching and explicit flag control.
+  - Regex-based text redaction with:
+    - Case-insensitive support
+    - Optional fixed-length masking
+    - Safe literal escaping when regex is not assumed
+  - Configurable text wrapping with:
+    - Paragraph preservation
+    - Optional whitespace normalization
+    - Word-aware wrapping and hard-wrapping modes
+
+### Design Notes
+- No external runtime dependencies; *standard library only*.
+- Explicit validation and defensive programming.
+- Clear distinction between normalization, formatting, and redaction concerns.
+- APIs are intentionally strict to avoid silent data corruption.
+- Documentation emphasizes when *not* to use the library.
+
+### Known Limitations
+- Normalization operations are intentionally lossy by design.
+- Not intended for NLP, linguistic analysis, or language-aware transformations.
+- Paragraph detection is heuristic-based (blank-line separation).

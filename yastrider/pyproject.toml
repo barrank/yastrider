@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yastrider"
+dynamic = ["version"]
+description = "Yet another string tidier: A small, predictable, dependency-free toolkit for defensive string cleansing and tidying."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Martín Barranca Rábago" }
+]
+
+keywords = [
+    "text",
+    "unicode",
+    "normalization",
+    "redaction",
+    "ascii",
+    "formatting"
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Text Processing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/barrank/yastrider"
+Source = "https://github.com/barrank/yastrider"
+Issues = "https://github.com/barrank/yastrider/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+version = { attr = "yastrider.version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

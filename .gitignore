@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# OS
+.DS_Store
+
+# Other
+yastrider.zip
