@@ -27,8 +27,10 @@ from yastrider.char_removal import (
 from yastrider.diacritics_processing import (
     strip_diacritics,
 )
+from yastrider._validation import validate, String
 
 
+@validate(text=String())
 def normalize_text(
     text: str,
     remove_diacritics: bool = True,
@@ -120,9 +122,6 @@ def normalize_text(
         str:
             Normalized text, with preserved characters (if provided).
     """
-    # Validation
-    if not isinstance(text, str):
-        raise TypeError("Argument 'text' must be a string.")
     if normalization_form not in VALID_FORMS_SET:
         valid_forms = ', '.join(
             "'%s" % f for f in sorted(VALID_FORMS_DIACRITIC_REMOVAL_SET))
@@ -246,6 +245,10 @@ def normalize_text(
     return ans
 
 
+@validate(
+    string=String(),
+    fallback_char_for_non_ascii=String(),
+)
 def to_ascii(
     string: str,
     remove_diacritics_before_encoding: bool = True,
@@ -291,17 +294,13 @@ def to_ascii(
         str:
             ASCII-safe version of the input string.
     """
-    # Validation
-    if not isinstance(string, str):
-        raise TypeError("Argument 'string' must be a string.")
+    # Domain-specific validation (cannot be handled by decorator)
     if normalization_form not in VALID_FORMS_SET:
         valid_forms = ', '.join(
             "'%s" % f for f in sorted(VALID_FORMS_DIACRITIC_REMOVAL_SET))
         raise ValueError(
             f"Invalid normalization form; must be one of the "
             f"following: {valid_forms}")
-    if not isinstance(fallback_char_for_non_ascii, str):
-        raise TypeError("'fallback_char_for_non_ascii' must be a string.")
     if not fallback_char_for_non_ascii.isascii():
         raise ValueError(
             "'fallback_char_for_non_ascii' must be an ASCII string.")

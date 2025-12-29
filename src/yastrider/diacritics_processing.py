@@ -7,11 +7,12 @@ from unicodedata import (
 )
 
 from yastrider.constants import (
-    VALID_FORMS, VALID_FORMS_SET,
     VALID_FORMS_DIACRITIC_REMOVAL, VALID_FORMS_DIACRITIC_REMOVAL_SET,
 )
+from yastrider._validation import validate, String
 
 
+@validate(string=String())
 def strip_diacritics(
     string: str,
     normalization_form: VALID_FORMS_DIACRITIC_REMOVAL = 'NFKD'
@@ -42,9 +43,7 @@ def strip_diacritics(
         str:
             String with combining marks (diacritics) removed.
     """
-    # Validation
-    if not isinstance(string, str):
-        raise TypeError("Argument 'string' must be a string.")
+    # Domain-specific validation (cannot be handled by decorator)
     if normalization_form not in VALID_FORMS_DIACRITIC_REMOVAL_SET:
         valid_forms = ', '.join(
             "'%s" % f for f in sorted(VALID_FORMS_DIACRITIC_REMOVAL_SET))

@@ -7,8 +7,20 @@ from collections.abc import Collection
 from yastrider.utils import (
     regex_pattern
 )
+from yastrider._validation import (
+    validate,
+    String,
+    Int,
+    StringOrCollection,
+)
 
 
+@validate(
+    text=String(),
+    redacted=StringOrCollection(non_empty_items=True),
+    redaction_char=String(single_char=True),
+    fixed_redaction_length=Int(non_negative=True),
+)
 def redact_text(
     text: str,
     redacted: str|Collection[str],
@@ -67,30 +79,6 @@ def redact_text(
     Returns:
         str: The redacted text.
     """
-    # Validation
-    if not isinstance(text, str):
-        raise TypeError("Argument 'text' must be a string.")
-    if not isinstance(redacted, (str, Collection)):
-        raise TypeError(
-            "Argument 'redacted' must be a string or a collection.")
-    if isinstance(redacted, Collection) and not isinstance(redacted, str):
-        if not all(isinstance(x, str) for x in redacted):
-            raise TypeError("All items in 'redacted' must be strings.")
-        if any(not x for x in redacted):
-            raise ValueError(
-                "All items in 'redacted' must be non-empty strings.")
-    if not isinstance(redaction_char, str):
-        raise TypeError("Argument 'redaction_char' must be a string.")
-    if len(redaction_char) != 1:
-        raise ValueError(
-            "Argument 'redaction_char' must be a single character.")
-    if not isinstance(fixed_redaction_length, int):
-        raise TypeError(
-            "Argument 'fixed_redaction_length' must be an integer.")
-    if fixed_redaction_length < 0:
-        raise ValueError(
-            "Argument 'fixed_redaction_length' must be a non-negative "
-            "integer.")
     # Defensive casting:
     assume_regex = bool(assume_regex)
     case_insensitive = bool(case_insensitive)

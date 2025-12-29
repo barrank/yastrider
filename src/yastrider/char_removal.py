@@ -11,8 +11,17 @@ from yastrider.constants import (
 from yastrider.utils import (
     is_printable_character,
 )
+from yastrider._validation import (
+    validate,
+    String,
+    NonEmptyIterable,
+)
 
 
+@validate(
+    string=String(),
+    categories=NonEmptyIterable(),
+)
 def remove_chars_by_category(
     string: str,
     categories: Iterable[str] = {'C', 'P', 'S'}
@@ -41,13 +50,6 @@ def remove_chars_by_category(
         str:
             String without characters of the specified categories.
     """
-    # Validation
-    if not isinstance(string, str):
-        raise TypeError("Argument 'string' must be a string.")
-    if not isinstance(categories, Iterable):
-        raise TypeError("Argument 'categories' must be an iterable.")
-    if not categories:
-        raise ValueError("No categories specified for removal.")
     # Defensive casting (it's here to deduplicate entries and ease both
     # validation and further usage)
     categories = set(categories)
@@ -68,6 +70,7 @@ def remove_chars_by_category(
     )
 
 
+@validate(string=String())
 def remove_extra_spaces(
     string: str,
     preserve_newlines: bool = True,
@@ -104,9 +107,6 @@ def remove_extra_spaces(
         str:
             String without any extra spaces.
     """
-    # Validation
-    if not isinstance(string, str):
-        raise TypeError("Argument 'string' must be a string.")
     # Defensive casting:
     preserve_newlines = bool(preserve_newlines)
     preserve_tabs = bool(preserve_tabs)
@@ -131,6 +131,7 @@ def remove_extra_spaces(
     return string
 
 
+@validate(string=String())
 def remove_non_printable_characters(
     string:str
 ) -> str:
@@ -152,9 +153,6 @@ def remove_non_printable_characters(
         str:
             The string with all non-printable characters removed.
     """
-    # Validation
-    if not isinstance(string, str):
-        raise TypeError("Argument 'string' must be a string.")
     # Early return for empty strings:
     if not string:
         return string
