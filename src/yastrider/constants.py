@@ -29,3 +29,22 @@ VALID_FORMS_SET = frozenset(get_args(VALID_FORMS))
 VALID_FORMS_DIACRITIC_REMOVAL = Literal['NFD', 'NFKD']
 VALID_FORMS_DIACRITIC_REMOVAL_SET = frozenset(
     get_args(VALID_FORMS_DIACRITIC_REMOVAL))
+
+
+# Quotation marks normalization
+UNICODE_QUOTE_MAP: dict[str, str] = {
+    # Double quotes
+    '“': '"',
+    '”': '"',
+    '„': '"',
+    '«': '"',
+    '»': '"',
+    '″': '"',
+
+    # Single quotes / apostrophes
+    '‘': "'",
+    '’': "'",
+    '‚': "'",
+    '′': "'",
+}
+

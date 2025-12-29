@@ -360,3 +360,9 @@ Of course, my code is not perfect, so if you find a better way to do things, fee
 If you find `yastrider` helpful, star it and tell your favorite fellow developer about it! (If you don't have a favorite fellow developer, just spread the word!)
 
 Also, if you find `yastrider` useful, consider supporting its development. Donations will help sustain careful design and long-term maintenance.
+
+---
+## Contributors
+
+- @vlshields — Shared validation module and `@validate` decorator.
+

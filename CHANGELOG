@@ -7,6 +7,13 @@ This project follows a conservative interpretation of
 and explicit behavior.
 
 ---
+## **0.2.0** (2025-12-29)
+
+### Added
+
+- New validation module (contributed by @vlshields) providing reusable validators and a `@Validate` decorator to eliminate duplicated `isinstance` / `raise` patterns.
+- Hyphen and quotation mark normalization to ASCII equivalents (Unicode Pd, U+2212, and common Unicode quotes).
+
 
 ## **0.1.0** (2025-12-20)
 

@@ -6,6 +6,7 @@ import warnings
 from collections.abc import Collection
 from typing import cast
 from unicodedata import (
+    category,
     combining,
     normalize,
 )
@@ -14,7 +15,8 @@ from yastrider.constants import (
     ALLOWED_NON_PRINTABLE_CHARACTERS,
     INTERNAL_TOKEN_MARKER,
     VALID_FORMS, VALID_FORMS_SET,
-    VALID_FORMS_DIACRITIC_REMOVAL, VALID_FORMS_DIACRITIC_REMOVAL_SET
+    VALID_FORMS_DIACRITIC_REMOVAL, VALID_FORMS_DIACRITIC_REMOVAL_SET,
+    UNICODE_QUOTE_MAP,
 )
 from yastrider.utils import (
     is_printable_character,
@@ -28,6 +30,45 @@ from yastrider.diacritics_processing import (
     strip_diacritics,
 )
 from yastrider._validation import validate, String
+
+
+def _normalize_hyphens(text: str) -> str:
+    """Normalizes Unicode hyphens (category `Pd`) and `U+2212` to ASCII 
+    hyphens.
+
+    Args:
+        text (str):
+            Text on which hyphens will be normalized.
+
+    Returns:
+        Text with all Unicode hyphens replaced by `-` (ASCII minus sign).
+    """
+    if not text:
+        return text
+    return ''.join(
+        '-' if (
+            category(c) == 'Pd' or c == '\u2212'
+        ) else c
+        for c in text
+    )
+
+
+def _normalize_quotes(text: str) -> str:
+    """Normalizes Unicode quotation marks to ASCII.
+
+    Args:
+        text (str):
+            Text to be normalized.
+    
+    Returns:
+        Text with Unicode quotation marks replaced with ASCII quotation marks.
+    """
+    if not text:
+        return text
+    return ''.join(
+        UNICODE_QUOTE_MAP.get(c, c) 
+        for c in text
+    )
 
 
 @validate(text=String())
@@ -47,7 +88,7 @@ def normalize_text(
     In any case, the function will apply Unicode normalization as a last step
     before returning the result.
 
-    If 'preserved' is a non-empty collection of characters and
+    If 'preserve' is a non-empty collection of characters and
     'remove_diacritics' is True, an internal tokenization process will be
     applied to each character to be preserved. If 'use_non_printable_for_token'
     is True (default), a non-printable character will be used for safe
@@ -252,6 +293,8 @@ def normalize_text(
 def to_ascii(
     string: str,
     remove_diacritics_before_encoding: bool = True,
+    normalize_hyphens: bool = True,
+    normalize_quotes: bool = True,
     percent_code_non_ascii: bool = True,
     fallback_char_for_non_ascii: str = '?',
     normalization_form: VALID_FORMS = 'NFKD'
@@ -266,13 +309,21 @@ def to_ascii(
             If True, diacritics will be removed from the string before
             processing.
             Default: True.
+        normalize_hyphens (bool, optional):
+            If True, Unicode hyphens (category `Pd`) and the Unicode minus 
+            sign (`U+2212`) will be replaced by the ASCII minus sign.
+            Default: True.
+        normalize_quotes (bool, optional):
+            If True, Unicode quotation marks will be normalized to ASCII 
+            quotation marks.
+            Default: True.
         percent_code_non_ascii (bool, optional):
             If True, any non-ASCII characters (after optional diacritic
             stripping) will be percent encoded.
             Default: True.
         fallback_char_for_non_ascii (str, optional):
             If 'percent_code_for_non_ascii' is False, any non-ASCII characters
-            (after optional diacritic stripping) will be replaced by this
+            (after optional diacritic stripping, hyphen normalization and quote normalization) will be replaced by this
             character. Of course, this character must be ASCII-safe.
             Defaults to '?'.
         normalization_form (VALID_FORMS, optional):
@@ -312,6 +363,9 @@ def to_ascii(
     # Defensive casting:
     remove_diacritics_before_encoding = bool(remove_diacritics_before_encoding)
     percent_code_non_ascii = bool(percent_code_non_ascii)
+    normalize_hyphens = bool(normalize_hyphens)
+    normalize_quotes = bool(normalize_quotes)
+
     # Form validation for diacritic removal:
     if (
         remove_diacritics_before_encoding and
@@ -337,6 +391,13 @@ def to_ascii(
                 normalization_form))
     else:
         ans = normalize(normalization_form, string)
+    
+    if normalize_hyphens:
+        ans = _normalize_hyphens(ans)
+    
+    if normalize_quotes:
+        ans = _normalize_quotes(ans)
+
     if ans.isascii():
         return ans
     if not percent_code_non_ascii:
