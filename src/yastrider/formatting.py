@@ -7,8 +7,14 @@ from textwrap import TextWrapper
 from yastrider.char_removal import (
     remove_extra_spaces,
 )
+from yastrider._validation import validate, String, Int
 
 
+@validate(
+    text=String(),
+    width=Int(positive=True),
+    tab_size=Int(positive=True),
+)
 def wrap_text(
     text: str,
     width: int = 80,
@@ -87,17 +93,7 @@ def wrap_text(
         str:
             The wrapped and formatted text.
     """
-    # Validation:
-    if not isinstance(text, str):
-        raise TypeError("Argument 'text' must be a string.")
-    if not isinstance(width, int):
-        raise TypeError("Argument 'width' must be an integer.")
-    if width <= 0:
-        raise ValueError("Argument 'width' must be a positive integer.")
-    if not isinstance(tab_size, int):
-        raise TypeError("Argument 'tab_size' must be an integer.")
-    if tab_size <= 0:
-        raise ValueError("Argument 'tab_size' must be a positive integer.")
+    # Cross-parameter validation (cannot be handled by decorator):
     if tab_size >= width:
         raise ValueError("Argument `tab_size` cannot be larger than `width`.")
     # Defensive casting:

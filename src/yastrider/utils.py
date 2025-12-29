@@ -6,8 +6,10 @@ from functools import lru_cache
 from unicodedata import normalize
 
 from yastrider.constants import VALID_FORMS, VALID_FORMS_SET
+from yastrider._validation import validate, String
 
 
+@validate(char=String(single_char=True))
 @lru_cache(maxsize=256)
 def is_printable_character(
     char: str
@@ -27,14 +29,13 @@ def is_printable_character(
     Returns:
         bool: 'True' if the character is printable; 'False' otherwise.
     """
-    if not isinstance(char, str):
-        raise TypeError("Argument 'char' must be a string.")
-    if len(char) != 1:
-        raise ValueError("Argument 'char' must be a single character.")
-
     return char.isprintable()
 
 
+@validate(
+    char=String(single_char=True),
+    normalization_form=String(),
+)
 @lru_cache(maxsize=256)
 def percent_encode(
     char: str,
@@ -75,12 +76,6 @@ def percent_encode(
             character; otherwise, it will return the percent-code of the
             character. Notice that this may generate multiple percent-codes.
     """
-    if not isinstance(char, str):
-        raise TypeError("Argument 'char' must be a string.")
-    if len(char) != 1:
-        raise ValueError("Argument 'char' must be a single character.")
-    if not isinstance(normalization_form, str):
-        raise TypeError("Argument 'normalization_form' must be a string.")
     if normalization_form not in VALID_FORMS_SET:
         valid_forms = ', '.join(
             "'%s" % f for f in sorted(VALID_FORMS_SET))
@@ -97,6 +92,7 @@ def percent_encode(
         ).encode('utf-8'))
 
 
+@validate(pattern=String(non_empty=True))
 @lru_cache(maxsize=128)
 def regex_pattern(
     pattern: str,
@@ -139,10 +135,6 @@ def regex_pattern(
     Returns:
         re.Pattern: Compiled regular expression pattern
     """
-    if not isinstance(pattern, str):
-        raise TypeError("Argument 'pattern' must be a string.")
-    if not pattern:
-        raise ValueError("Argument 'pattern' must be a non-empty string.")
     flags = 0
     if unicode:
         flags |= re.UNICODE
