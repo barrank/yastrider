@@ -210,7 +210,7 @@ no_extra_spaces = remove_extra_spaces(cleaned_text)
 print(no_extra_spaces)
 ##> "Hellõ World!"
 
-# Finally, redact that "hello" word:
+# Finally, redact that "World" word:
 redacted = redact_text(no_extra_spaces, "World")
 print(redacted)
 ##> "Hellõ XXXXX!"

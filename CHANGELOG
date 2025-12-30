@@ -7,6 +7,14 @@ This project follows a conservative interpretation of
 and explicit behavior.
 
 ---
+## **0.2.1** (2025-12-30)
+
+### Fixed
+
+- Corrected validation error messages for.normalization form handling.
+- Minor internal consistency improvements.
+- Corrected README.md
+
 ## **0.2.0** (2025-12-29)
 
 ### Added

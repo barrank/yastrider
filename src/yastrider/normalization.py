@@ -165,7 +165,7 @@ def normalize_text(
     """
     if normalization_form not in VALID_FORMS_SET:
         valid_forms = ', '.join(
-            "'%s" % f for f in sorted(VALID_FORMS_DIACRITIC_REMOVAL_SET))
+            "'%s" % f for f in sorted(VALID_FORMS_SET))
         raise ValueError(
             f"Invalid normalization form; must be one of the "
             f"following: {valid_forms}")

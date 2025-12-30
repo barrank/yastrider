@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from unicodedata import category
 
 from yastrider.constants import (
+    ALLOWED_UNICODE_CATEGORIES_FOR_REMOVAL,
     ALLOWED_NON_PRINTABLE_CHARACTERS,
 )
 from yastrider.utils import (
@@ -24,7 +25,7 @@ from yastrider._validation import (
 )
 def remove_chars_by_category(
     string: str,
-    categories: Iterable[str] = {'C', 'P', 'S'}
+    categories: Iterable[str] = ALLOWED_UNICODE_CATEGORIES_FOR_REMOVAL
 ) -> str:
     """Removes characters by Unicode category.
 
@@ -54,10 +55,17 @@ def remove_chars_by_category(
     # validation and further usage)
     categories = set(categories)
     # Category validation:
-    if any(cat not in {'C', 'P', 'S'} for cat in categories):
+    if any(
+        cat not in ALLOWED_UNICODE_CATEGORIES_FOR_REMOVAL 
+        for cat in categories
+    ):
+        valid_categories = ', '.join(
+            "'%s'" % c
+            for c in sorted(ALLOWED_UNICODE_CATEGORIES_FOR_REMOVAL)
+        )
         raise ValueError(
-            "Invalid categories specified. Categories must be one (or more) "
-            "of the following: 'C', 'P', 'S'.")
+            f"Invalid categories specified. Categories must be one (or more) "
+            f"of the following: {valid_categories}.")
     # Early return for empty strings:
     if not string:
         return string
