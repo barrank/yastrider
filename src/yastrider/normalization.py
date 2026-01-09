@@ -32,6 +32,61 @@ from yastrider.diacritics_processing import (
 from yastrider._validation import validate, String
 
 
+class _TokenManager:
+    """Manages tokenization and restoration of preserved characters.
+
+    This class encapsulates the logic for replacing characters with tokens
+    during text normalization, allowing those characters to be preserved
+    through transformations that would otherwise modify them.
+    """
+
+    def __init__(
+        self,
+        preserve: frozenset[str],
+        use_non_printable_marker: bool = True
+    ) -> None:
+        """Initialize the token manager.
+
+        Args:
+            preserve: Set of characters to preserve during normalization.
+            use_non_printable_marker: If True, use a non-printable character
+                prefix for safer tokenization.
+        """
+        self._use_non_printable_marker = use_non_printable_marker
+        self._token_map: dict[str, str] = {
+            self._tokenize(c): c for c in preserve
+        }
+        self._pattern_chars = regex_pattern(
+            '|'.join(re.escape(c) for c in preserve)
+        )
+        self._pattern_tokens = regex_pattern(
+            '|'.join(re.escape(t) for t in self._token_map)
+        )
+
+    def _tokenize(self, char: str) -> str:
+        """Create a unique token for a character."""
+        prefix = '__preserved_'
+        if self._use_non_printable_marker:
+            prefix = f"{INTERNAL_TOKEN_MARKER}{prefix}"
+        return f"{prefix}{percent_encode(char)}__"
+
+    def _replace_with_token(self, match: re.Match) -> str:
+        """Replacement callback: character -> token."""
+        return self._tokenize(match.group(0))
+
+    def _replace_with_char(self, match: re.Match) -> str:
+        """Replacement callback: token -> character."""
+        return self._token_map[match.group(0)]
+
+    def tokenize_text(self, text: str) -> str:
+        """Replace all preserved characters with their tokens."""
+        return self._pattern_chars.sub(self._replace_with_token, text)
+
+    def restore_text(self, text: str) -> str:
+        """Restore all tokens back to their original characters."""
+        return self._pattern_tokens.sub(self._replace_with_char, text)
+
+
 def _normalize_hyphens(text: str) -> str:
     """Normalizes Unicode hyphens (category `Pd`) and `U+2212` to ASCII 
     hyphens.
@@ -248,28 +303,10 @@ def normalize_text(
             "Consider using 'remove_non_printable_characters()'.",
             UserWarning)
 
-    # Character preservation utility functions:
-    #   1.  Tokenization
-    def _tokenize_char(x: str) -> str:
-        prefix = '__preserved_'
-        if use_non_printable_for_token:
-            prefix = f"{INTERNAL_TOKEN_MARKER}{prefix}"
-        token = f"{prefix}{percent_encode(x)}__"
-        return token
-    #   2.  Replacement (preserved char -> token)
-    def _replacer(match: re.Match) -> str:
-        char = match.group(0)
-        return _tokenize_char(char)
-    #   3. Replacement (token -> preserved char)
-    def _replace_token(match: re.Match) -> str:
-        return token_map[match.group(0)]
-    # Token map: A dictionary of tokens and characters:
-    token_map = {_tokenize_char(c): c for c in preserve}
-    # Regex patterns for substitution and restoring of preserved characters:
-    pattern_preserve = regex_pattern('|'.join(re.escape(c) for c in preserve))
-    pattern_tokens = regex_pattern('|'.join(re.escape(k) for k in token_map))
+    # Use TokenManager to handle character preservation:
+    token_manager = _TokenManager(preserve, use_non_printable_for_token)
     # Replace all preserved characters with their tokens:
-    ans = pattern_preserve.sub(_replacer, text)
+    ans = token_manager.tokenize_text(text)
     # Remove diacritics (except for those to be preserved):
     if remove_diacritics:
         ans = strip_diacritics(
@@ -280,7 +317,7 @@ def normalize_text(
                 VALID_FORMS_DIACRITIC_REMOVAL,
                 normalization_form))
     # Restore preserved characters:
-    ans = pattern_tokens.sub(_replace_token, ans)
+    ans = token_manager.restore_text(ans)
     # Normalize the processed string before returning it.
     ans = normalize(normalization_form, ans)
     return ans
